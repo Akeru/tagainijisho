@@ -21,25 +21,26 @@ before_install:
   - TAGAINI_VERSION=`grep "set(VERSION" CMakeLists.txt | cut -d ' ' -f 2 | tr -d '\)'`
   - export TAGAINI_VERSION
   - env | sort
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq update ; sudo apt-get install -qq libtext-multimarkdown-perl sqlite3 qt4-dev-tools rpm ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew install cmake multimarkdown qt; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq update ; sudo apt-get install -qq libtext-multimarkdown-perl sqlite3 qt4-dev-tools rpm qt5-default qtdeclarative5-dev; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update ; brew install multimarkdown qt; fi
   - qmake -version
 
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DCMAKE_BUILD_TYPE=Release -DEMBED_SQLITE=1 ..
 
 after_success:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cpack -G DEB ; cpack -G RPM ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ../pack/source/buildsourcerelease.sh ; cpack -G DEB ; cpack -G RPM ; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then sudo -s -- "cpack -G DragNDrop" ; sudo -s -- "chown travis Tagaini\ Jisho-$TAGAINI_VERSION.dmg " ; fi
 
 deploy:
   - provider: releases
     skip_cleanup: true
     api_key:
-      secure: HYYg9qSPdKCYvKP/RHG8LIistBlhjoSS8T0/W5mjGCMpXjPi+5aMOzMECqAtyWWgLbqaGNbyOZekuqMlFji3bjdQ2WTJYK6EnWEORsaeiutFu+XmsLb8hNJ0/BXRzq0cX3U7wpSz5o6NcXF4FnWduTtkqShfe73foHLt6wjmvgs= 
+    secure: HYYg9qSPdKCYvKP/RHG8LIistBlhjoSS8T0/W5mjGCMpXjPi+5aMOzMECqAtyWWgLbqaGNbyOZekuqMlFji3bjdQ2WTJYK6EnWEORsaeiutFu+XmsLb8hNJ0/BXRzq0cX3U7wpSz5o6NcXF4FnWduTtkqShfe73foHLt6wjmvgs= 
     file:
+      - tagainijisho-$TAGAINI_VERSION.tar.gz
       - tagainijisho-$TAGAINI_VERSION.deb
       - tagainijisho-$TAGAINI_VERSION.rpm
     on:
@@ -49,7 +50,7 @@ deploy:
   - provider: releases
     skip_cleanup: true
     api_key:
-      secure: HYYg9qSPdKCYvKP/RHG8LIistBlhjoSS8T0/W5mjGCMpXjPi+5aMOzMECqAtyWWgLbqaGNbyOZekuqMlFji3bjdQ2WTJYK6EnWEORsaeiutFu+XmsLb8hNJ0/BXRzq0cX3U7wpSz5o6NcXF4FnWduTtkqShfe73foHLt6wjmvgs=
+    secure: HYYg9qSPdKCYvKP/RHG8LIistBlhjoSS8T0/W5mjGCMpXjPi+5aMOzMECqAtyWWgLbqaGNbyOZekuqMlFji3bjdQ2WTJYK6EnWEORsaeiutFu+XmsLb8hNJ0/BXRzq0cX3U7wpSz5o6NcXF4FnWduTtkqShfe73foHLt6wjmvgs=
     file:
       - "Tagaini Jisho-$TAGAINI_VERSION.dmg"
     on:
